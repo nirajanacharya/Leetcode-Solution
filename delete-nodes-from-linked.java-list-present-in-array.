@@ -1,0 +1,94 @@
+import java.io.*;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Arrays;
+
+class ListNode {
+    int val;
+    ListNode next;
+    ListNode(int val) { this.val = val; }
+}
+
+public class Solution {
+    
+    public ListNode deleteNodes(ListNode head, int[] arr) {
+        Set<Integer> toDelete = new HashSet<>();
+        for (int num : arr) {
+            toDelete.add(num);
+        }
+
+        ListNode dummy = new ListNode(0);
+        dummy.next = head;
+        ListNode prev = dummy;
+        ListNode current = head;
+
+        while (current != null) {
+            if (toDelete.contains(current.val)) {
+                prev.next = current.next;
+            } else {
+                prev = current;
+            }
+            current = current.next;
+        }
+
+        return dummy.next;
+    }
+
+
+    public void processFile(String inputFilePath, String outputFilePath) throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader(inputFilePath));
+        String linkedListLine = reader.readLine();  // First line for linked list
+        String arrayLine = reader.readLine();       // Second line for array
+        reader.close();
+        
+        ListNode head = createLinkedListFromString(linkedListLine);
+        int[] arr = Arrays.stream(arrayLine.split(","))
+                          .mapToInt(Integer::parseInt)
+                          .toArray();
+        
+       
+        ListNode newHead = deleteNodes(head, arr);
+        
+        // Write result to output file
+        BufferedWriter writer = new BufferedWriter(new FileWriter(outputFilePath));
+        writer.write(convertLinkedListToString(newHead));
+        writer.close();
+    }
+
+    
+    private ListNode createLinkedListFromString(String data) {
+        String[] values = data.split(",");
+        ListNode dummy = new ListNode(0);
+        ListNode current = dummy;
+        for (String val : values) {
+            current.next = new ListNode(Integer.parseInt(val.trim()));
+            current = current.next;
+        }
+        return dummy.next;
+    }
+
+ 
+    private String convertLinkedListToString(ListNode head) {
+        StringBuilder sb = new StringBuilder();
+        while (head != null) {
+            sb.append(head.val);
+            if (head.next != null) sb.append(",");
+            head = head.next;
+        }
+        return sb.toString();
+    }
+
+   
+    public static void main(String[] args) {
+        Solution solution = new Solution();
+        String inputFilePath = "input.txt";   // Input file path
+        String outputFilePath = "output.txt"; // Output file path
+
+        try {
+            solution.processFile(inputFilePath, outputFilePath);
+            System.out.println("Processing completed. Check the output file.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
